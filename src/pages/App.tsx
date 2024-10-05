@@ -1,57 +1,56 @@
+// Страница где есть кнопки авторизации по соцсетям
 function App() {
-    function onGitHubClick() {
-        // The client id from github
-        const client_id = "Ov23lix6EdcGrBfP7Bee"
-        // На какой адрес нашего сервера ГитХаб должен сделать переадресацию после того,
-        // как пользователь резрешит использовать его данные на нашем сайте
-        const redirect_uri = "http://localhost:3000/api/v1/auth/registration/github"
-
-        // Затем нужно сгенерировать какой-то токен CSRF. Про это можно почитать тут:
-        // https://www.synopsys.com/glossary/what-is-csrf.html
-        // И он генерируется через crypto.randomBytes(16).toString("hex")
-        // Но модуль crypto есть только на Ноде. Поэтому сгенерировал его там и тут вставляю как обычную строку.
-        const state = '50c45fc5314190fc5d117c09dc9ebadf'
-        // Это сохраняется в LocalStorage. Пока не понимаю для чего.
-        localStorage.setItem("latestCSRFToken", state)
-
-        // Адрес ГитХаба, на который перенаправить пользователя для авторизации через ГитХаб.
-        // В response_type написано, что ГитХаб должен прислать какой-то код в ответе.
-        // А в scope написано какие разрешения мой сайт запрашивает у ГитХаба. Написано repo, не знаю что это обозначает.
-        // И в redirect_url заносится адрес страницы на который ГитХаб должен переадресовать пользователя, который согласится авторизоваться через ГитХаб.
-        // И в state как раз сгенерированный токен CSRF.
-        const link = `https://github.com/login/oauth/authorize?client_id=${client_id}&response_type=code&scope=user&redirect_uri=${redirect_uri}&state=${state}`
-
-        // По какой-то причине при нажатии на ссылку перехода нет.
-        // Поэтому я делаю автоматический переход на страницу авторизации при загрузке страницы.
-        window.location.assign(link)
-    }
-
-    function onGoogleClick() {
-        const client_id = "792546249106-u5of55jk4hus635kpd936g5968b62a1c.apps.googleusercontent.com"
-        const redirect_uri = "http://localhost:3000/api/v1/auth/registration/google"
-
-        const state = '50c45fc5314190fc5d117c09dc9ebadf'
-        localStorage.setItem("latestCSRFToken", state)
-
-        // Адрес ГитХаба, на который перенаправить пользователя для авторизации через ГитХаб.
-        // В response_type написано, что ГитХаб должен прислать какой-то код в ответе.
-        // А в scope написано какие разрешения мой сайт запрашивает у ГитХаба. Написано repo, не знаю что это обозначает.
-        // И в redirect_url заносится адрес страницы на который ГитХаб должен переадресовать пользователя, который согласится авторизоваться через ГитХаб.
-        // И в state как раз сгенерированный токен CSRF.
-        const link = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&response_type=code&scope=email profile&redirect_uri=${redirect_uri}&state=${state}`
-
-        // По какой-то причине при нажатии на ссылку перехода нет.
-        // Поэтому я делаю автоматический переход на страницу авторизации при загрузке страницы.
-        window.location.assign(link)
-    }
-
   return (
       <div>
-          <p onClick={onGitHubClick}>GitHub</p>
-          <p onClick={onGoogleClick}>Google</p>
+          <p onClick={onGitHubClick}>Authorize by GitHub</p>
+          <p onClick={onGoogleClick}>Authorize by Google</p>
       </div>
 
   )
 }
 
 export default App
+
+function onGitHubClick() {
+    const {hostname} = location
+
+    // The client id from github
+    const clientId = hostname === 'localhost' ? "Ov23lix6EdcGrBfP7Bee" : 'Ov23liO3kDzrbnr2fXKK'
+    // На какой адрес клиента ГитХаб должен сделать переадресацию после того,
+    // как пользователь разрешит использовать его данные на нашем сайте
+    const redirectUri = hostname === 'localhost' ? "http://localhost:3000/github" : 'https://sociable-people.com/github'
+
+    // Затем нужно сгенерировать случайную строку.
+    // Например используйте uuid()
+    // Для демонстрации используют обычную.
+    const state = '50c45fc5314190fc5d117c09dc9ebadf'
+    // Сохранить в LocalStorage. Потом потребуется при получении ответа от ГитХаба.
+    localStorage.setItem("latestCSRFToken", state)
+
+    // Адрес ГитХаба, на который перенаправить пользователя для авторизации через ГитХаб.
+    const link = `https://github.com/login/oauth/authorize?client_id=${clientId}&response_type=code&scope=user&redirect_uri=${redirectUri}&state=${state}`
+
+    // Автоматический переход на страницу авторизации при загрузке страницы.
+    window.location.assign(link)
+}
+
+// Для Гугла всё по аналогии.
+function onGoogleClick() {
+    const {hostname} = location
+
+    const client_id = "792546249106-u5of55jk4hus635kpd936g5968b62a1c.apps.googleusercontent.com"
+    // На какой адрес клиента Гугла должен сделать переадресацию после того,
+    // как пользователь разрешит использовать его данные на нашем сайте
+    const redirectUri = hostname === 'localhost' ? "http://localhost:3000/google" : 'https://sociable-people.com/google'
+
+    // Затем нужно сгенерировать случайную строку.
+    // Например используйте uuid()
+    // Для демонстрации используют обычную.
+    const state = '50c45fc5314190fc5d117c09d9eb'
+    localStorage.setItem("latestCSRFToken", state)
+
+    // Адрес Гугла, на который перенаправить пользователя для авторизации через Гугл.
+    const link = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${client_id}&response_type=code&scope=email profile&redirect_uri=${redirectUri}&state=${state}`
+
+    window.location.assign(link)
+}
